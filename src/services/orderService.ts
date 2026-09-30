@@ -199,8 +199,8 @@ export async function placeOrder(
       name: officialProduct.name,
       price: unitPrice,
       quantity: qty,
-      variant: raw.variant,
       lineTotal,
+      ...(raw.variant ? { variant: raw.variant } : {}),
     });
   }
 
@@ -218,27 +218,18 @@ export async function placeOrder(
     phone: input.phone.trim(),
     mode: input.mode,
 
-    pickupTime:
-      input.mode === 'pickup'
-        ? (input.pickupTime?.trim() || 'Au plus tôt')
-        : undefined,
-
-    address:
-      input.mode === 'delivery'
-        ? (input.address?.trim() || '')
-        : undefined,
-
-    quartier:
-      input.mode === 'delivery'
-        ? (input.quartier?.trim() || '')
-        : undefined,
-
-    indications:
-      input.mode === 'delivery'
-        ? (input.indications?.trim() || '')
-        : undefined,
-
     items: verifiedItems,
+
+    ...(input.mode === 'pickup'
+      ? {
+          pickupTime:
+            input.pickupTime?.trim() || 'Au plus tôt',
+        }
+      : {
+          address: input.address?.trim() || '',
+          quartier: input.quartier?.trim() || '',
+          indications: input.indications?.trim() || '',
+        }),
     total: calculatedTotal,
     paymentMethod: 'cash',
     status: 'received',
