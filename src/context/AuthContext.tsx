@@ -1,60 +1,65 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { User, onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth';
-import { auth, googleProvider } from '../firebase/auth';
+import {
+  User,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  signOut,
+} from 'firebase/auth';
+import { auth } from '../firebase/auth';
 
 interface AuthContextType {
   currentUser: User | null;
   isAdmin: boolean;
   loading: boolean;
-  signInWithGoogle: () => Promise<void>;
+  signInWithManager: (email: string, password: string) => Promise<void>;
   managerLogout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  const isManagerAccount = (user: User | null) =>
+    !!user &&
+    user.providerData.some(
+      (provider) => provider.providerId === 'password'
+    );
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setCurrentUser(user);
-
-      const authorized =
-        !!user &&
-        user.email?.toLowerCase() === 'evansshelby465@gmail.com' &&
-        user.emailVerified === true;
-
-      setIsAdmin(authorized);
+      setIsAdmin(isManagerAccount(user));
       setLoading(false);
     });
 
     return () => unsubscribe();
   }, []);
 
-  const signInWithGoogle = async () => {
+  const signInWithManager = async (
+    email: string,
+    password: string
+  ) => {
     setLoading(true);
 
     try {
-      const cred = await signInWithPopup(auth, googleProvider);
+      const cred = await signInWithEmailAndPassword(
+        auth,
+        email.trim(),
+        password
+      );
 
-      const authorized =
-        cred.user.email?.toLowerCase() === 'evansshelby465@gmail.com' &&
-        cred.user.emailVerified === true;
+      if (!isManagerAccount(cred.user)) {
+        await signOut(auth);
+        throw new Error('Ce compte n’est pas un compte gérant.');
+      }
 
       setCurrentUser(cred.user);
-      setIsAdmin(authorized);
-
-      if (!authorized) {
-        await signOut(auth);
-        throw new Error(
-          'Ce compte Google n’est pas autorisé à accéder au terminal gérant.'
-        );
-      }
+      setIsAdmin(true);
     } catch (error) {
-      console.error('Google Sign In Error:', error);
+      console.error('Manager Sign In Error:', error);
       throw error;
     } finally {
       setLoading(false);
@@ -73,7 +78,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         currentUser,
         isAdmin,
         loading,
-        signInWithGoogle,
+        signInWithManager,
         managerLogout,
       }}
     >
@@ -84,6 +89,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 export function useAuth() {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error('useAuth must be used within an AuthProvider');
+
+  if (!ctx) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+
   return ctx;
 }

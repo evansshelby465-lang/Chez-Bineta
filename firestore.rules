@@ -9,8 +9,7 @@ service cloud.firestore {
 
     function isAdmin() {
       return isSignedIn()
-        && request.auth.token.email == 'evansshelby465@gmail.com'
-        && request.auth.token.email_verified == true;
+        && request.auth.token.firebase.sign_in_provider == 'password';
     }
 
     function isValidId(id) {
@@ -20,15 +19,6 @@ service cloud.firestore {
         && id.matches('^[a-zA-Z0-9_\\-]+$');
     }
 
-    // =========================================================
-    // PRIVATE ORDERS
-    // =========================================================
-    //
-    // Complete order documents contain:
-    // phone, address, quartier, indications, notes, etc.
-    //
-    // Only the manager may READ/UPDATE/DELETE them.
-    //
     match /orders/{orderId} {
 
       allow read: if isAdmin();
@@ -97,15 +87,6 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
-    // =========================================================
-    // PUBLIC ORDER TRACKING
-    // =========================================================
-    //
-    // Contains ONLY information needed by the customer
-    // to follow the order.
-    //
-    // The real phone/address are deliberately absent.
-    //
     match /orderTracking/{orderId} {
 
       allow get, list: if true;
@@ -130,25 +111,10 @@ service cloud.firestore {
       allow update, delete: if isAdmin();
     }
 
-    // =========================================================
-    // PRODUCTS
-    // =========================================================
-
     match /products/{productId} {
-
       allow read: if isValidId(productId);
-
       allow create, update, delete: if isAdmin();
     }
-
-    // =========================================================
-    // RESERVATIONS
-    // =========================================================
-    //
-    // Client can create.
-    // Only manager can read/manage because reservations
-    // contain customer phone/address information.
-    //
 
     match /reservations/{reservationId} {
 
@@ -165,31 +131,15 @@ service cloud.firestore {
       allow update, delete: if isAdmin();
     }
 
-    // =========================================================
-    // STORE STATUS
-    // =========================================================
-
     match /storeStatus/{statusId} {
-
       allow read: if isValidId(statusId);
-
       allow create, update, delete: if isAdmin();
     }
 
-    // =========================================================
-    // ADMINS
-    // =========================================================
-
     match /admins/{adminId} {
-
       allow read: if isAdmin();
-
       allow write: if isAdmin();
     }
-
-    // =========================================================
-    // DEFAULT DENY
-    // =========================================================
 
     match /{document=**} {
       allow read, write: if false;

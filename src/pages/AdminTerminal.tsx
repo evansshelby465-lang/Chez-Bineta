@@ -49,7 +49,11 @@ export const AdminTerminal: React.FC<AdminTerminalProps> = ({
   products,
   storeStatus,
 }) => {
-  const { currentUser, isAdmin, signInWithGoogle, managerLogout } = useAuth();
+  const { currentUser, isAdmin, signInWithManager, managerLogout } = useAuth();
+  const [managerEmail, setManagerEmail] = useState('');
+  const [managerPassword, setManagerPassword] = useState('');
+  const [loginError, setLoginError] = useState('');
+  const [loginSubmitting, setLoginSubmitting] = useState(false);
 
 
   const [adminTab, setAdminTab] = useState<'orders' | 'history' | 'products' | 'reservations' | 'settings'>('orders');
@@ -180,30 +184,96 @@ export const AdminTerminal: React.FC<AdminTerminalProps> = ({
             </p>
           </div>
 
-          <button
-            onClick={() => signInWithGoogle()}
-            className="w-full py-3 px-4 rounded-2xl bg-white hover:bg-stone-50 text-stone-800 font-bold text-xs sm:text-sm flex items-center justify-center gap-2.5 border border-stone-200/80 shadow-xs transition active:scale-95"
+          <form
+            onSubmit={async (event) => {
+              event.preventDefault();
+
+              setLoginError('');
+              setLoginSubmitting(true);
+
+              try {
+                await signInWithManager(
+                  managerEmail,
+                  managerPassword
+                );
+
+                setManagerPassword('');
+              } catch (error: any) {
+                const code = error?.code || '';
+
+                if (
+                  code === 'auth/invalid-credential' ||
+                  code === 'auth/wrong-password' ||
+                  code === 'auth/user-not-found'
+                ) {
+                  setLoginError(
+                    'Identifiant ou mot de passe incorrect.'
+                  );
+                } else if (code === 'auth/too-many-requests') {
+                  setLoginError(
+                    'Trop de tentatives. Réessaie dans quelques minutes.'
+                  );
+                } else if (code === 'auth/invalid-email') {
+                  setLoginError(
+                    'Adresse e-mail invalide.'
+                  );
+                } else {
+                  setLoginError(
+                    error?.message || 'Connexion impossible.'
+                  );
+                }
+              } finally {
+                setLoginSubmitting(false);
+              }
+            }}
+            className="space-y-3 text-left"
           >
-            <svg className="w-4 h-4" viewBox="0 0 24 24">
-              <path
-                fill="#4285F4"
-                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+            <div>
+              <label className="block text-xs font-extrabold text-stone-600 mb-1.5">
+                Identifiant du gérant
+              </label>
+
+              <input
+                type="email"
+                value={managerEmail}
+                onChange={(e) => setManagerEmail(e.target.value)}
+                placeholder="gerant@chezbineta.com"
+                autoComplete="username"
+                required
+                className="w-full px-4 py-3 rounded-2xl bg-white border border-stone-200 outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 text-sm"
               />
-              <path
-                fill="#34A853"
-                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+            </div>
+
+            <div>
+              <label className="block text-xs font-extrabold text-stone-600 mb-1.5">
+                Mot de passe
+              </label>
+
+              <input
+                type="password"
+                value={managerPassword}
+                onChange={(e) => setManagerPassword(e.target.value)}
+                placeholder="Mot de passe"
+                autoComplete="current-password"
+                required
+                className="w-full px-4 py-3 rounded-2xl bg-white border border-stone-200 outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 text-sm"
               />
-              <path
-                fill="#FBBC05"
-                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
-              />
-              <path
-                fill="#EA4335"
-                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
-              />
-            </svg>
-            <span>Connexion Google (Bineta)</span>
-          </button>
+            </div>
+
+            {loginError && (
+              <div className="rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold px-4 py-3">
+                {loginError}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loginSubmitting}
+              className="w-full py-3 px-4 rounded-2xl btn-liquid-orange text-white font-black text-sm flex items-center justify-center gap-2 shadow-md transition active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {loginSubmitting ? 'Connexion…' : 'Se connecter'}
+            </button>
+          </form>
         </div>
       </div>
     );
