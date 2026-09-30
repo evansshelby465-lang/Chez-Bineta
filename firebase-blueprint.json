@@ -1,0 +1,252 @@
+{
+  "entities": {
+    "Order": {
+      "title": "Order",
+      "description": "Customer order document containing items, customer contact, and delivery or pickup information",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier of the order"
+        },
+        "orderNumber": {
+          "type": "string",
+          "description": "Human readable order number like CB-1042",
+          "maxLength": 30
+        },
+        "numericId": {
+          "type": "number",
+          "description": "Sequential or numeric order code"
+        },
+        "customerName": {
+          "type": "string",
+          "description": "Name of the customer",
+          "maxLength": 100
+        },
+        "phone": {
+          "type": "string",
+          "description": "Phone or WhatsApp number of customer",
+          "maxLength": 30
+        },
+        "mode": {
+          "type": "string",
+          "enum": ["pickup", "delivery"],
+          "description": "Fulfillment mode"
+        },
+        "pickupTime": {
+          "type": "string",
+          "description": "Desired pickup time if pickup",
+          "maxLength": 50
+        },
+        "address": {
+          "type": "string",
+          "description": "Delivery address",
+          "maxLength": 250
+        },
+        "quartier": {
+          "type": "string",
+          "description": "Neighborhood in Saint-Louis",
+          "maxLength": 100
+        },
+        "indications": {
+          "type": "string",
+          "description": "Delivery landmarks and indications",
+          "maxLength": 300
+        },
+        "items": {
+          "type": "array",
+          "description": "List of ordered products"
+        },
+        "total": {
+          "type": "number",
+          "description": "Total price strictly calculated in FCFA"
+        },
+        "paymentMethod": {
+          "type": "string",
+          "description": "Payment method strictly cash on delivery or pickup"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["received", "preparing", "ready", "delivering", "completed", "cancelled"],
+          "description": "Current status of the order"
+        },
+        "rejectionReason": {
+          "type": "string",
+          "description": "Optional reason if order was refused",
+          "maxLength": 250
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "ISO date string or timestamp"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "ISO date string or timestamp"
+        },
+        "notes": {
+          "type": "string",
+          "description": "Customer special instructions",
+          "maxLength": 300
+        }
+      },
+      "required": ["id", "orderNumber", "customerName", "phone", "mode", "items", "total", "paymentMethod", "status", "createdAt"]
+    },
+    "Product": {
+      "title": "Product",
+      "description": "Menu product entity for Chez Bineta",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Identifier of the product"
+        },
+        "name": {
+          "type": "string",
+          "description": "Product name",
+          "maxLength": 100
+        },
+        "category": {
+          "type": "string",
+          "description": "Product category",
+          "maxLength": 50
+        },
+        "price": {
+          "type": "number",
+          "description": "Price in FCFA"
+        },
+        "description": {
+          "type": "string",
+          "description": "Product description",
+          "maxLength": 300
+        },
+        "imageUrl": {
+          "type": "string",
+          "description": "Image reference URL or asset path",
+          "maxLength": 500
+        },
+        "isAvailable": {
+          "type": "boolean",
+          "description": "Whether the product is currently available"
+        },
+        "order": {
+          "type": "number",
+          "description": "Sorting order"
+        },
+        "variants": {
+          "type": "array",
+          "description": "Optional product variants"
+        }
+      },
+      "required": ["id", "name", "price", "isAvailable"]
+    },
+    "Reservation": {
+      "title": "Reservation",
+      "description": "Sunday advance reservation for Chez Bineta",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Identifier of the reservation"
+        },
+        "customerName": {
+          "type": "string",
+          "description": "Customer name",
+          "maxLength": 100
+        },
+        "phone": {
+          "type": "string",
+          "description": "Contact phone number",
+          "maxLength": 30
+        },
+        "date": {
+          "type": "string",
+          "description": "Date of the Sunday reservation",
+          "maxLength": 50
+        },
+        "desiredTime": {
+          "type": "string",
+          "description": "Requested time",
+          "maxLength": 30
+        },
+        "mode": {
+          "type": "string",
+          "description": "Delivery or pickup",
+          "maxLength": 30
+        },
+        "address": {
+          "type": "string",
+          "description": "Delivery address if delivery",
+          "maxLength": 250
+        },
+        "items": {
+          "type": "array",
+          "description": "Reserved menu items and quantities"
+        },
+        "notes": {
+          "type": "string",
+          "description": "Special request or notes",
+          "maxLength": 300
+        },
+        "status": {
+          "type": "string",
+          "enum": ["pending", "accepted", "refused"],
+          "description": "Reservation status"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Creation timestamp"
+        }
+      },
+      "required": ["id", "customerName", "phone", "date", "status", "createdAt"]
+    },
+    "StoreStatus": {
+      "title": "StoreStatus",
+      "description": "Global restaurant operational status",
+      "type": "object",
+      "properties": {
+        "isOpen": {
+          "type": "boolean",
+          "description": "Whether store is open for orders"
+        },
+        "isSundayMode": {
+          "type": "boolean",
+          "description": "Whether Sunday reservation mode is active"
+        },
+        "bannerNotice": {
+          "type": "string",
+          "description": "Optional announcement banner",
+          "maxLength": 300
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Last update timestamp"
+        }
+      },
+      "required": ["isOpen"]
+    }
+  },
+  "firestore": {
+    "/orders/{orderId}": {
+      "schema": "Order",
+      "description": "Central collection for all customer orders placed and managed in real-time"
+    },
+    "/products/{productId}": {
+      "schema": "Product",
+      "description": "Official catalog of restaurant menu items and prices"
+    },
+    "/reservations/{reservationId}": {
+      "schema": "Reservation",
+      "description": "Sunday advance reservations collection"
+    },
+    "/storeStatus/{statusId}": {
+      "schema": "StoreStatus",
+      "description": "Store status configuration singleton"
+    },
+    "/admins/{adminId}": {
+      "schema": {
+        "$ref": "#/entities/StoreStatus"
+      },
+      "description": "Allowlist of manager / admin users authenticated via Firebase Auth"
+    }
+  }
+}

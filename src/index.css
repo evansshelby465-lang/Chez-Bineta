@@ -1,0 +1,84 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: #faf8f5;
+  }
+}
+
+/* iOS 26 Glassmorphism Utilities */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(28px) saturate(190%);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 10px 30px -5px rgba(255, 107, 0, 0.05), 0 4px 16px -2px rgba(0, 0, 0, 0.03);
+}
+
+.glass-panel-elevated {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(36px) saturate(200%);
+  -webkit-backdrop-filter: blur(36px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 0 20px 45px -10px rgba(255, 107, 0, 0.12), 0 8px 24px -4px rgba(0, 0, 0, 0.05);
+}
+
+.glass-panel-orange {
+  background: linear-gradient(135deg, rgba(255, 122, 0, 0.12) 0%, rgba(255, 179, 71, 0.08) 100%);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 154, 60, 0.25);
+  box-shadow: 0 12px 32px -6px rgba(255, 122, 0, 0.15);
+}
+
+.glass-pill {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+.btn-liquid-orange {
+  background: linear-gradient(135deg, #ff6b00 0%, #ff851a 50%, #ffa133 100%);
+  color: #ffffff;
+  box-shadow: 0 8px 20px -3px rgba(255, 107, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.btn-liquid-orange:hover {
+  background: linear-gradient(135deg, #ff7a1a 0%, #ff9433 50%, #ffad4d 100%);
+  box-shadow: 0 12px 26px -3px rgba(255, 107, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  transform: translateY(-1px);
+}
+
+.btn-liquid-orange:active {
+  transform: scale(0.97);
+  box-shadow: 0 4px 12px -2px rgba(255, 107, 0, 0.35);
+}
+
+/* Custom iOS style scrollbars */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(200, 195, 190, 0.5);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(180, 175, 170, 0.8);
+}
+
+/* Mobile safe area padding utility */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 16px);
+}
+.safe-top {
+  padding-top: env(safe-area-inset-top, 16px);
+}

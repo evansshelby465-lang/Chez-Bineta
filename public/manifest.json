@@ -1,0 +1,27 @@
+{
+  "id": "/",
+  "name": "Chez Bineta — Commande & Délices",
+  "short_name": "Chez Bineta",
+  "description": "Vos envies, nos délices 😋 - Commandez vos tacos, pizzas, fatayas, nems et poutines à Saint-Louis",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0c0a09",
+  "theme_color": "#0c0a09",
+  "orientation": "portrait",
+  "categories": ["food", "shopping"],
+  "icons": [
+    {
+      "src": "/file_00000000276c81f482bf0792c3794c7b.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/file_00000000276c81f482bf0792c3794c7b.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

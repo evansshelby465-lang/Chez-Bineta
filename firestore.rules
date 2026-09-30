@@ -1,0 +1,198 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn()
+        && request.auth.token.email == 'evansshelby465@gmail.com'
+        && request.auth.token.email_verified == true;
+    }
+
+    function isValidId(id) {
+      return id is string
+        && id.size() > 0
+        && id.size() <= 128
+        && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // =========================================================
+    // PRIVATE ORDERS
+    // =========================================================
+    //
+    // Complete order documents contain:
+    // phone, address, quartier, indications, notes, etc.
+    //
+    // Only the manager may READ/UPDATE/DELETE them.
+    //
+    match /orders/{orderId} {
+
+      allow read: if isAdmin();
+
+      allow create: if isValidId(orderId)
+        && request.resource.data.id == orderId
+        && request.resource.data.customerName is string
+        && request.resource.data.customerName.size() >= 2
+        && request.resource.data.customerName.size() <= 100
+        && request.resource.data.phone is string
+        && request.resource.data.phone.size() >= 6
+        && request.resource.data.phone.size() <= 30
+        && request.resource.data.mode in ['pickup', 'delivery']
+        && request.resource.data.paymentMethod == 'cash'
+        && request.resource.data.status == 'received'
+        && request.resource.data.numericId is int
+        && request.resource.data.orderNumber is string
+        && request.resource.data.total is number
+        && request.resource.data.total > 0
+        && request.resource.data.items is list
+        && request.resource.data.items.size() > 0
+        && request.resource.data.items.size() <= 50
+        && request.resource.data.keys().hasOnly([
+          'id',
+          'orderNumber',
+          'numericId',
+          'customerName',
+          'phone',
+          'mode',
+          'pickupTime',
+          'address',
+          'quartier',
+          'indications',
+          'items',
+          'total',
+          'paymentMethod',
+          'status',
+          'createdAt',
+          'updatedAt',
+          'notes'
+        ]);
+
+      allow update: if isAdmin()
+        && request.resource.data.id == resource.data.id
+        && request.resource.data.customerName == resource.data.customerName
+        && request.resource.data.phone == resource.data.phone
+        && request.resource.data.mode == resource.data.mode
+        && request.resource.data.items == resource.data.items
+        && request.resource.data.total == resource.data.total
+        && request.resource.data.paymentMethod == resource.data.paymentMethod
+        && request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly([
+            'status',
+            'rejectionReason',
+            'updatedAt'
+          ])
+        && request.resource.data.status in [
+          'received',
+          'preparing',
+          'ready',
+          'delivering',
+          'completed',
+          'cancelled'
+        ];
+
+      allow delete: if isAdmin();
+    }
+
+    // =========================================================
+    // PUBLIC ORDER TRACKING
+    // =========================================================
+    //
+    // Contains ONLY information needed by the customer
+    // to follow the order.
+    //
+    // The real phone/address are deliberately absent.
+    //
+    match /orderTracking/{orderId} {
+
+      allow get, list: if true;
+
+      allow create: if isValidId(orderId)
+        && request.resource.data.id == orderId
+        && request.resource.data.orderNumber is string
+        && request.resource.data.numericId is int
+        && request.resource.data.customerName is string
+        && request.resource.data.customerName.size() >= 2
+        && request.resource.data.mode in ['pickup', 'delivery']
+        && request.resource.data.total is number
+        && request.resource.data.total > 0
+        && request.resource.data.items is list
+        && request.resource.data.items.size() > 0
+        && request.resource.data.items.size() <= 50
+        && request.resource.data.status == 'received'
+        && request.resource.data.paymentMethod == 'cash'
+        && request.resource.data.phoneHash is string
+        && request.resource.data.phoneHash.size() == 64;
+
+      allow update, delete: if isAdmin();
+    }
+
+    // =========================================================
+    // PRODUCTS
+    // =========================================================
+
+    match /products/{productId} {
+
+      allow read: if isValidId(productId);
+
+      allow create, update, delete: if isAdmin();
+    }
+
+    // =========================================================
+    // RESERVATIONS
+    // =========================================================
+    //
+    // Client can create.
+    // Only manager can read/manage because reservations
+    // contain customer phone/address information.
+    //
+
+    match /reservations/{reservationId} {
+
+      allow read: if isAdmin();
+
+      allow create: if isValidId(reservationId)
+        && request.resource.data.id == reservationId
+        && request.resource.data.customerName is string
+        && request.resource.data.customerName.size() >= 2
+        && request.resource.data.phone is string
+        && request.resource.data.phone.size() >= 6
+        && request.resource.data.status == 'pending';
+
+      allow update, delete: if isAdmin();
+    }
+
+    // =========================================================
+    // STORE STATUS
+    // =========================================================
+
+    match /storeStatus/{statusId} {
+
+      allow read: if isValidId(statusId);
+
+      allow create, update, delete: if isAdmin();
+    }
+
+    // =========================================================
+    // ADMINS
+    // =========================================================
+
+    match /admins/{adminId} {
+
+      allow read: if isAdmin();
+
+      allow write: if isAdmin();
+    }
+
+    // =========================================================
+    // DEFAULT DENY
+    // =========================================================
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
