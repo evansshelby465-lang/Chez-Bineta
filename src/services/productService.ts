@@ -70,9 +70,11 @@ export function subscribeToProducts(
         if (docSnap.id === 'fataya') {
           data.price = 100;
         }
-        // If it was still pointing to old file_00000..., use local image
+        // Always use the verified local image for official products.
+        // Firestore may contain an old/broken imageUrl; never let it replace
+        // the images bundled with the application.
         const localProd = INITIAL_PRODUCTS.find(p => p.id === docSnap.id);
-        if (localProd && (!data.imageUrl || data.imageUrl.startsWith('/file_0000'))) {
+        if (localProd) {
           data.imageUrl = localProd.imageUrl;
         }
 
@@ -102,6 +104,13 @@ export async function getOfficialCatalogMap(): Promise<Map<string, Product>> {
       snap.forEach((d) => {
         const item = d.data() as Product;
         if (d.id === 'fataya') item.price = 100;
+
+        // Keep official local images stable even if Firestore has an old URL.
+        const localProd = INITIAL_PRODUCTS.find(p => p.id === d.id);
+        if (localProd) {
+          item.imageUrl = localProd.imageUrl;
+        }
+
         map.set(d.id, { ...item, id: d.id });
       });
       return map;
