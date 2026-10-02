@@ -2,6 +2,7 @@ import React from 'react';
 import { Phone, MessageSquare, MapPin, Clock, Download, Heart } from 'lucide-react';
 import { RESTAURANT_INFO } from '../data/initialCatalog';
 import { usePWAInstall } from '../hooks/usePWAInstall';
+import { PWAInstallButton } from '../components/PWAInstallButton';
 
 interface MorePageProps {
   onNavigateToAdmin: () => void;
@@ -35,37 +36,7 @@ export const MorePage: React.FC<MorePageProps> = ({
         </div>
       </div>
 
-      {/* PWA Install Card */}
-      {(!isInstalled && (isInstallable || isIOS)) && (
-        <div className="glass-panel-orange border border-orange-200 rounded-[32px] p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3.5 text-left">
-            <div className="p-3 rounded-2xl btn-liquid-orange text-white shadow-md">
-              <Download className="w-5 h-5" />
-            </div>
-            <div>
-              <h3 className="font-black text-sm text-stone-900">
-                Installer l’application Chez Bineta
-              </h3>
-              <p className="text-xs text-stone-600 mt-0.5">
-                Accès direct depuis votre écran d’accueil pour commander instantanément sur votre téléphone.
-              </p>
-            </div>
-          </div>
-
-          <button
-            onClick={() => {
-              if (isInstallable) {
-                install();
-              } else if (isIOS) {
-                alert('Sur iPhone / iPad : Appuyez sur le bouton Partager dans Safari, puis "Sur l\'écran d\'accueil".');
-              }
-            }}
-            className="w-full sm:w-auto px-5 py-3 rounded-2xl btn-liquid-orange font-black text-xs shadow-md transition whitespace-nowrap active:scale-95"
-          >
-            Installer sur mon téléphone
-          </button>
-        </div>
-      )}
+      <PWAInstallButton />
 
       {/* Contact card */}
       <div className="glass-panel rounded-[32px] p-6 space-y-4 border border-white shadow-xs">
