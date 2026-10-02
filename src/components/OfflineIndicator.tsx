@@ -8,9 +8,12 @@ export const OfflineIndicator: React.FC = () => {
   if (isOnline) return null;
 
   return (
-    <div className="fixed top-14 left-4 right-4 z-50 max-w-md mx-auto flex items-center justify-center gap-2 rounded-2xl bg-amber-600 px-4 py-2.5 text-xs font-bold text-stone-950 shadow-2xl animate-bounce">
+    <div
+      className="fixed left-4 right-4 z-50 max-w-md mx-auto flex items-center justify-center gap-2 rounded-2xl bg-amber-500 text-stone-950 px-4 py-2.5 text-xs font-black shadow-2xl border border-amber-300 animate-fadeIn"
+      style={{ top: 'calc(max(10px, env(safe-area-inset-top, 10px)) + 60px)' }}
+    >
       <WifiOff className="w-4 h-4 flex-shrink-0" />
-      <span>Mode hors ligne — Vérifiez votre connexion Internet pour synchroniser vos commandes.</span>
+      <span>Mode hors ligne — Connexion requise pour envoyer les commandes.</span>
     </div>
   );
 };
