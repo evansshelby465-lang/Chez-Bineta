@@ -1,5 +1,8 @@
 import express from 'express';
-import * as admin from 'firebase-admin';
+import { cert, initializeApp } from 'firebase-admin/app';
+import { getAuth } from 'firebase-admin/auth';
+import { getFirestore, FieldValue } from 'firebase-admin/firestore';
+import { getMessaging } from 'firebase-admin/messaging';
 
 const app = express();
 app.use(express.json());
@@ -20,17 +23,13 @@ try {
   process.exit(1);
 }
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
+const firebaseApp = initializeApp({
+  credential: cert(serviceAccount),
 });
 
-const db = admin.firestore();
+const db = getFirestore(firebaseApp, 'ai-studio-1baeb06d-009a-4e20-920c-673dfb42653a');
 
-db.settings({
-  databaseId: 'ai-studio-1baeb06d-009a-4e20-920c-673dfb42653a',
-});
-
-const messaging = admin.messaging();
+const messaging = getMessaging(firebaseApp);
 
 app.get('/api/push/health', (_req, res) => {
   res.json({
@@ -50,7 +49,7 @@ app.post('/api/push/register', async (req, res) => {
     }
 
     const idToken = authorization.slice(7);
-    const decoded = await admin.auth().verifyIdToken(idToken);
+    const decoded = await getAuth(firebaseApp).verifyIdToken(idToken);
 
     if (decoded.firebase?.sign_in_provider !== 'password') {
       return res.status(403).json({
@@ -73,7 +72,7 @@ app.post('/api/push/register', async (req, res) => {
       {
         uid: decoded.uid,
         token,
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        updatedAt: FieldValue.serverTimestamp(),
       },
       { merge: true }
     );
@@ -100,7 +99,7 @@ app.post('/api/push/unregister', async (req, res) => {
     }
 
     const idToken = authorization.slice(7);
-    const decoded = await admin.auth().verifyIdToken(idToken);
+    const decoded = await getAuth(firebaseApp).verifyIdToken(idToken);
 
     await db.collection('pushTokens').doc(decoded.uid).delete();
 
