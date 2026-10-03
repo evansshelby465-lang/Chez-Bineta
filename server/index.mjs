@@ -215,6 +215,10 @@ async function pollOrders() {
             continue;
           }
 
+          console.log(
+            `🔎 Push pour orderDoc.id=${orderDoc.id} | orderNumber=${order.orderNumber || orderDoc.id}`
+          );
+
           await messaging.send({
             token,
             notification: {
