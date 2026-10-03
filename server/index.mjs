@@ -171,6 +171,33 @@ async function pollOrders() {
         if (!token) continue;
 
         try {
+          const notificationRef = db
+            .collection('pushNotifications')
+            .doc(`${orderDoc.id}_${tokenDoc.id}`);
+
+          const notificationClaim = await db.runTransaction(async (transaction) => {
+            const existing = await transaction.get(notificationRef);
+
+            if (existing.exists) {
+              return false;
+            }
+
+            transaction.create(notificationRef, {
+              orderId: orderDoc.id,
+              tokenOwner: tokenDoc.id,
+              createdAt: FieldValue.serverTimestamp(),
+            });
+
+            return true;
+          });
+
+          if (!notificationClaim) {
+            console.log(
+              `⏭️ Notification déjà envoyée pour ${order.orderNumber || orderDoc.id}`
+            );
+            continue;
+          }
+
           await messaging.send({
             token,
             notification: {
