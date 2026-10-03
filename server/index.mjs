@@ -135,7 +135,6 @@ app.post('/api/push/unregister', async (req, res) => {
 });
 
 let knownReceivedOrders = new Set();
-let pushPollInitialized = false;
 
 async function pollOrders() {
   try {
@@ -147,17 +146,6 @@ async function pollOrders() {
     const currentOrders = new Set(
       snapshot.docs.map((doc) => doc.id)
     );
-
-    if (!pushPollInitialized) {
-      knownReceivedOrders = currentOrders;
-      pushPollInitialized = true;
-
-      console.log(
-        `🟢 Initialisation push : ${snapshot.size} commande(s) received déjà présentes ignorées`
-      );
-
-      return;
-    }
 
     const newOrders = snapshot.docs.filter(
       (doc) => !knownReceivedOrders.has(doc.id)
