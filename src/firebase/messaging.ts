@@ -5,6 +5,8 @@ import { app } from './app';
 const VAPID_KEY =
   'BP8uRehVxC-bWBbhrmcSoyT50fbciP9GvYnneYXeBWKgwWj1WeXkQn2FqoQmRkgu7aes40gERZxyKL-AuruB1EU';
 
+const PUSH_API_URL = 'https://chez-bineta-push.onrender.com';
+
 export async function enableManagerPush(user: User): Promise<boolean> {
   if (typeof window === 'undefined') return false;
   if (!('Notification' in window)) return false;
@@ -35,7 +37,7 @@ export async function enableManagerPush(user: User): Promise<boolean> {
 
   const idToken = await user.getIdToken();
 
-  const response = await fetch('/api/push/register', {
+  const response = await fetch(`${PUSH_API_URL}/api/push/register`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
