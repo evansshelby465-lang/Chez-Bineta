@@ -16,6 +16,26 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
+messaging.onBackgroundMessage((payload) => {
+  const data = payload.data || {};
+
+  const orderNumber = data.orderNumber || 'nouvelle commande';
+  const title = data.title || `🔔 Nouvelle commande ${orderNumber}`;
+  const body = data.body || 'Une nouvelle commande est arrivée.';
+
+  self.registration.showNotification(title, {
+    body,
+    icon: '/file_00000000276c81f482bf0792c3794c7b.png',
+    badge: '/file_00000000276c81f482bf0792c3794c7b.png',
+    tag: `chez-bineta-${orderNumber}`,
+    renotify: false,
+    vibrate: [300, 100, 300, 100, 400],
+    data: {
+      orderNumber,
+    },
+  });
+});
+
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
 
