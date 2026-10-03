@@ -24,8 +24,11 @@ export const BottomNav: React.FC<BottomNavProps> = ({
   ];
 
   return (
-    <nav className="fixed bottom-3 left-3 right-3 z-50 max-w-lg mx-auto safe-bottom">
-      <div className="glass-panel-elevated rounded-3xl p-1.5 flex items-center justify-around">
+    <nav
+      className="fixed left-3 right-3 z-40 max-w-lg mx-auto pointer-events-none"
+      style={{ bottom: 'max(12px, calc(env(safe-area-inset-bottom, 0px) + 8px))' }}
+    >
+      <div className="glass-panel-elevated rounded-[28px] p-1.5 flex items-center justify-around border border-white/95 shadow-[0_16px_36px_rgba(255,107,0,0.14)] pointer-events-auto">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = currentTab === item.id;
@@ -35,25 +38,30 @@ export const BottomNav: React.FC<BottomNavProps> = ({
               <button
                 key={item.id}
                 onClick={onOpenCart}
-                className="relative flex flex-col items-center justify-center py-1.5 px-3 min-w-[56px] text-stone-500 hover:text-orange-600 transition-colors group active:scale-92"
+                className="relative flex flex-col items-center justify-center py-1 px-3 min-w-[58px] min-h-[48px] text-stone-500 hover:text-orange-600 transition-colors group active:scale-92 cursor-pointer"
+                aria-label={`Panier avec ${totalItemsCount} articles`}
               >
                 <div className="relative">
                   <div
-                    className={`p-2 rounded-2xl transition-all ${
-                      totalItemsCount > 0
-                        ? 'bg-orange-500 text-white shadow-[0_4px_12px_rgba(255,107,0,0.35)]'
-                        : 'bg-stone-100/80 text-stone-600'
+                    className={`p-2 rounded-2xl transition-all duration-200 ${
+                      currentTab === item.id
+                        ? 'bg-orange-500 text-white shadow-[0_6px_16px_rgba(255,107,0,0.4)] scale-105'
+                        : totalItemsCount > 0
+                        ? 'bg-orange-500 text-white shadow-[0_4px_14px_rgba(255,107,0,0.35)]'
+                        : 'bg-stone-100/90 text-stone-600'
                     }`}
                   >
                     <Icon className="w-5 h-5 transition-transform group-hover:scale-110" />
                   </div>
                   {totalItemsCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-stone-900 text-white text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-md border border-white">
+                    <span className="absolute -top-1 -right-1.5 bg-stone-900 text-white text-[10px] font-black w-4.5 h-4.5 rounded-full flex items-center justify-center shadow-md border-2 border-white animate-badge-pop">
                       {totalItemsCount}
                     </span>
                   )}
                 </div>
-                <span className="text-[10px] font-bold tracking-tight mt-1 text-stone-600">
+                <span className={`text-[10px] font-bold tracking-tight mt-1 ${
+                    currentTab === item.id ? 'text-orange-600 font-black' : 'text-stone-600'
+                  }`}>
                   Panier
                 </span>
               </button>
@@ -64,17 +72,17 @@ export const BottomNav: React.FC<BottomNavProps> = ({
             <button
               key={item.id}
               onClick={() => setCurrentTab(item.id)}
-              className={`relative flex flex-col items-center justify-center py-1.5 px-3 min-w-[56px] transition-all active:scale-92 rounded-2xl ${
+              className={`relative flex flex-col items-center justify-center py-1 px-3 min-w-[58px] min-h-[48px] transition-all active:scale-92 rounded-2xl cursor-pointer ${
                 isActive
                   ? 'text-orange-600 font-extrabold'
                   : 'text-stone-400 hover:text-stone-700'
               }`}
             >
               <div
-                className={`p-2 rounded-2xl transition-all ${
+                className={`p-2 rounded-2xl transition-all duration-200 ${
                   isActive
-                    ? 'bg-orange-500/10 text-orange-600 scale-105'
-                    : 'text-stone-500'
+                    ? 'bg-orange-500/12 text-orange-600 scale-105 shadow-xs'
+                    : 'text-stone-500 hover:bg-stone-100/70'
                 }`}
               >
                 <Icon className="w-5 h-5" />

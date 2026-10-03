@@ -20,7 +20,10 @@ export const Navbar: React.FC<NavbarProps> = ({
   const { totalItemsCount, totalAmount } = useCart();
 
   return (
-    <header className="sticky top-0 z-40 px-3 sm:px-4 pt-2.5 pb-2">
+    <header
+      className="sticky top-0 z-40 px-3 sm:px-4 pb-2 backdrop-blur-xs"
+      style={{ paddingTop: 'max(8px, env(safe-area-inset-top, 8px))' }}
+    >
       <div className="max-w-5xl mx-auto glass-panel rounded-3xl px-4 py-2.5 flex items-center justify-between transition-all duration-300">
         {/* Brand identity */}
         <button
@@ -33,6 +36,9 @@ export const Navbar: React.FC<NavbarProps> = ({
               alt="Chez Bineta"
               className="w-full h-full object-cover"
               referrerPolicy="no-referrer"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = '/images/logo.jpg';
+              }}
             />
           </div>
 

@@ -41,11 +41,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           alt={product.name}
           className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
           referrerPolicy="no-referrer"
-          loading="eager"
+          loading="lazy"
+          onError={(e) => {
+            (e.target as HTMLImageElement).src = '/images/logo.jpg';
+          }}
         />
 
         {/* Soft Glass Gradient at bottom of image */}
-        <div className="absolute inset-0 bg-gradient-to-t from-stone-900/40 via-transparent to-transparent opacity-60" />
+        <div className="absolute inset-0 bg-gradient-to-t from-stone-900/50 via-transparent to-transparent opacity-60 pointer-events-none" />
 
         {/* Badges on top */}
         <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 z-10">
@@ -55,7 +58,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               Indisponible
             </span>
           ) : (
-            <span className="inline-flex items-center text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full glass-pill text-stone-800 shadow-xs">
+            <span className="inline-flex items-center text-[10px] font-extrabold uppercase tracking-wider px-3 py-1 rounded-full glass-pill text-stone-800 shadow-xs border border-white/80">
               {product.category}
             </span>
           )}
@@ -63,7 +66,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
         {/* Floating iOS Glass Price Tag */}
         <div className="absolute bottom-3 right-3 z-10">
-          <div className="px-3.5 py-1.5 rounded-2xl glass-panel-elevated font-black text-sm md:text-base text-orange-600 shadow-[0_6px_16px_rgba(0,0,0,0.08)] tracking-tight">
+          <div className="px-3.5 py-1.5 rounded-2xl glass-panel-elevated font-black text-sm md:text-base text-orange-600 shadow-[0_6px_16px_rgba(0,0,0,0.08)] tracking-tight tabular-nums border border-white">
             {officialPrice.toLocaleString('fr-FR')} FCFA
           </div>
         </div>
@@ -77,7 +80,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               {product.name}
             </h3>
             {product.id === 'fataya' && (
-              <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-lg bg-orange-100 text-orange-700 border border-orange-200">
+              <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-lg bg-orange-100 text-orange-700 border border-orange-200">
                 100 F
               </span>
             )}
@@ -89,8 +92,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
           {/* Variant choice for Poutine (Crevettes vs Viande) */}
           {product.hasVariants && product.variants && (
-            <div className="mt-3 p-2.5 rounded-2xl bg-orange-50/60 border border-orange-100">
-              <label className="text-[11px] font-extrabold uppercase text-orange-800 tracking-wider block mb-1.5">
+            <div className="mt-3 p-3 rounded-2xl bg-orange-50/70 border border-orange-100">
+              <label className="text-[11px] font-extrabold uppercase text-orange-800 tracking-wider block mb-2">
                 Choix obligatoire :
               </label>
               <div className="grid grid-cols-2 gap-2">
@@ -102,7 +105,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                       type="button"
                       disabled={!product.isAvailable}
                       onClick={() => setSelectedVariant(v.name)}
-                      className={`text-xs py-2 px-2.5 rounded-xl font-bold transition-all text-center active:scale-95 ${
+                      className={`text-xs py-2.5 px-3 rounded-xl font-bold transition-all text-center active:scale-95 cursor-pointer ${
                         isSelected
                           ? 'btn-liquid-orange shadow-md'
                           : 'bg-white text-stone-700 border border-stone-200/80 hover:border-orange-300'
@@ -122,23 +125,23 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           {product.isAvailable ? (
             <>
               {/* iOS Glass Stepper */}
-              <div className="flex items-center glass-pill rounded-2xl p-1 shadow-xs border border-stone-200/70">
+              <div className="flex items-center glass-pill rounded-2xl p-1 shadow-xs border border-stone-200/80">
                 <button
                   type="button"
                   onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                  className="w-7 h-7 flex items-center justify-center text-stone-600 hover:text-stone-900 hover:bg-white rounded-xl transition active:scale-90"
-                  aria-label="Diminuer"
+                  className="w-8.5 h-8.5 min-w-[34px] min-h-[34px] flex items-center justify-center text-stone-700 hover:text-stone-950 hover:bg-white rounded-xl transition active:scale-90 cursor-pointer"
+                  aria-label="Diminuer la quantité"
                 >
                   <Minus className="w-3.5 h-3.5" />
                 </button>
-                <span className="w-7 text-center font-black text-xs sm:text-sm text-stone-900">
+                <span className="w-8 text-center font-black text-xs sm:text-sm text-stone-900 tabular-nums">
                   {quantity}
                 </span>
                 <button
                   type="button"
                   onClick={() => setQuantity((q) => Math.min(50, q + 1))}
-                  className="w-7 h-7 flex items-center justify-center text-stone-600 hover:text-stone-900 hover:bg-white rounded-xl transition active:scale-90"
-                  aria-label="Augmenter"
+                  className="w-8.5 h-8.5 min-w-[34px] min-h-[34px] flex items-center justify-center text-stone-700 hover:text-stone-950 hover:bg-white rounded-xl transition active:scale-90 cursor-pointer"
+                  aria-label="Augmenter la quantité"
                 >
                   <Plus className="w-3.5 h-3.5" />
                 </button>
@@ -148,9 +151,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               <button
                 type="button"
                 onClick={handleAdd}
-                className={`flex-1 py-2.5 px-4 rounded-2xl font-black text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all shadow-md active:scale-95 ${
+                className={`flex-1 min-h-[44px] py-2.5 px-4 rounded-2xl font-black text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all shadow-md active:scale-95 cursor-pointer ${
                   addedAnimation
-                    ? 'bg-emerald-500 text-white shadow-emerald-500/20'
+                    ? 'bg-emerald-500 text-white shadow-emerald-500/25'
                     : 'btn-liquid-orange'
                 }`}
               >
@@ -168,7 +171,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               </button>
             </>
           ) : (
-            <div className="w-full text-center py-2 text-xs text-stone-400 font-bold bg-stone-100/70 rounded-2xl border border-stone-200/50">
+            <div className="w-full text-center py-2.5 text-xs text-stone-400 font-bold bg-stone-100/70 rounded-2xl border border-stone-200/50">
               Temporairement indisponible
             </div>
           )}
