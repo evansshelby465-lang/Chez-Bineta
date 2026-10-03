@@ -16,29 +16,6 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
-messaging.onBackgroundMessage((payload) => {
-  const notification = payload.notification || {};
-  const data = payload.data || {};
-
-  const title =
-    notification.title || '🔔 Chez Bineta';
-
-  const body =
-    notification.body ||
-    'Nouvelle activité sur votre terminal.';
-
-  self.registration.showNotification(title, {
-    body,
-    icon: '/file_00000000276c81f482bf0792c3794c7b.png',
-    badge: '/file_00000000276c81f482bf0792c3794c7b.png',
-    vibrate: [300, 100, 300, 100, 400],
-    tag: data.orderNumber || 'chez-bineta-push',
-    data: {
-      url: '/',
-    },
-  });
-});
-
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
 
