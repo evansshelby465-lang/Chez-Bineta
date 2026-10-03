@@ -38,6 +38,7 @@ import {
 } from '../services/reservationService';
 import { updateStoreStatus } from '../services/storeStatusService';
 import { triggerNewOrderNotification, requestNotificationPermission } from '../utils/notifications';
+import { enableManagerPush } from '../firebase/messaging';
 import { createWhatsAppOrderLink } from '../utils/whatsapp';
 
 interface AdminTerminalProps {
@@ -54,6 +55,8 @@ export const AdminTerminal: React.FC<AdminTerminalProps> = ({
   const [managerPassword, setManagerPassword] = useState('');
   const [loginError, setLoginError] = useState('');
   const [loginSubmitting, setLoginSubmitting] = useState(false);
+  const [pushEnabled, setPushEnabled] = useState(false);
+  const [pushLoading, setPushLoading] = useState(false);
 
 
   const [adminTab, setAdminTab] = useState<'orders' | 'history' | 'products' | 'reservations' | 'settings'>('orders');
@@ -71,6 +74,29 @@ export const AdminTerminal: React.FC<AdminTerminalProps> = ({
 
   const knownOrderIdsRef = useRef<Set<string>>(new Set());
   const initialLoadRef = useRef(true);
+
+  useEffect(() => {
+    if (!isAdmin || !currentUser) {
+      setPushEnabled(false);
+      return;
+    }
+
+    if (
+      typeof window === 'undefined' ||
+      !('Notification' in window) ||
+      Notification.permission !== 'granted'
+    ) {
+      return;
+    }
+
+    enableManagerPush(currentUser)
+      .then((enabled) => {
+        setPushEnabled(enabled);
+      })
+      .catch((error) => {
+        console.error('Push notification setup error:', error);
+      });
+  }, [isAdmin, currentUser]);
 
   // 1. Subscribe to Orders in real-time
   useEffect(() => {
@@ -305,6 +331,40 @@ export const AdminTerminal: React.FC<AdminTerminalProps> = ({
 
         {/* Top actions */}
         <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            disabled={pushLoading}
+            onClick={async () => {
+              if (!currentUser) return;
+
+              try {
+                setPushLoading(true);
+                const enabled = await enableManagerPush(currentUser);
+                setPushEnabled(enabled);
+
+                if (!enabled) {
+                  alert("Les notifications n'ont pas été autorisées.");
+                }
+              } catch (error) {
+                console.error('Push activation error:', error);
+                alert("Impossible d'activer les notifications.");
+              } finally {
+                setPushLoading(false);
+              }
+            }}
+            className="px-3.5 py-2 rounded-2xl glass-panel hover:bg-white text-stone-700 font-bold text-xs flex items-center gap-1.5 border border-stone-200 shadow-xs transition active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed"
+            title="Activer les notifications push"
+          >
+            <Bell className="w-4 h-4 text-orange-500" />
+            <span>
+              {pushLoading
+                ? 'Activation…'
+                : pushEnabled
+                  ? 'Notifications actives'
+                  : 'Activer notifications'}
+            </span>
+          </button>
+
           <button
             onClick={() => {
               triggerNewOrderNotification('#TEST', 'Test Notification', 1000);
