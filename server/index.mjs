@@ -219,18 +219,25 @@ async function pollOrders() {
             `🔎 Push pour orderDoc.id=${orderDoc.id} | orderNumber=${order.orderNumber || orderDoc.id}`
           );
 
-          const orderNumber = String(
-            order.orderNumber || orderDoc.id
-          );
-
-          const total = Number(order.total || 0).toLocaleString('fr-FR');
-
           await messaging.send({
             token,
+            notification: {
+              title: `🔔 Nouvelle commande ${order.orderNumber || orderDoc.id}`,
+              body: `${order.customerName || 'Un client'} • ${Number(
+                order.total || 0
+              ).toLocaleString('fr-FR')} FCFA`,
+            },
             data: {
-              orderNumber,
-              title: `🔔 Nouvelle commande ${orderNumber}`,
-              body: `${order.customerName || 'Un client'} • ${total} FCFA`,
+              orderNumber: String(
+                order.orderNumber || orderDoc.id
+              ),
+            },
+            webpush: {
+              notification: {
+                icon: '/file_00000000276c81f482bf0792c3794c7b.png',
+                badge: '/file_00000000276c81f482bf0792c3794c7b.png',
+                vibrate: [300, 100, 300, 100, 400],
+              },
             },
           });
 
