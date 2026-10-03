@@ -1,5 +1,5 @@
 import express from 'express';
-import admin from 'firebase-admin';
+import * as admin from 'firebase-admin';
 
 const app = express();
 app.use(express.json());
