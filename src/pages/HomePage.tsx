@@ -1,8 +1,9 @@
-import React from 'react';
-import { ArrowRight, MapPin, Phone, MessageSquare, Clock, Calendar, Sparkles, ChefHat } from 'lucide-react';
+import React, { useState } from 'react';
+import { ArrowRight, MapPin, Phone, MessageSquare, Clock, Calendar, Sparkles, ChefHat, Download, Smartphone, X } from 'lucide-react';
 import { Product, StoreStatus } from '../types';
 import { RESTAURANT_INFO } from '../data/initialCatalog';
 import { ProductCard } from '../components/ProductCard';
+import { usePWAInstall } from '../hooks/usePWAInstall';
 
 interface HomePageProps {
   products: Product[];
@@ -19,6 +20,9 @@ export const HomePage: React.FC<HomePageProps> = ({
   onOpenSundayModal,
   onTrackOrder,
 }) => {
+  const { isInstallable, isInstalled, isIOS, install } = usePWAInstall();
+  const [showInstallGuideModal, setShowInstallGuideModal] = useState(false);
+
   const categories = [
     { id: 'tacos', label: 'Mini Tacos', icon: '🌮', price: '350 F' },
     { id: 'pizza', label: 'Mini Pizza', icon: '🍕', price: '350 F' },
@@ -28,7 +32,7 @@ export const HomePage: React.FC<HomePageProps> = ({
   ];
 
   return (
-    <div className="space-y-8 pb-16">
+    <div className="space-y-8 pb-28 sm:pb-32">
       {/* Ambient background glow orbs */}
       <div className="fixed top-20 -left-20 w-80 h-80 rounded-full bg-orange-400/15 blur-3xl pointer-events-none -z-10" />
       <div className="fixed top-60 -right-20 w-96 h-96 rounded-full bg-amber-300/20 blur-3xl pointer-events-none -z-10" />
@@ -44,6 +48,9 @@ export const HomePage: React.FC<HomePageProps> = ({
                 alt="Logo Chez Bineta"
                 className="w-full h-full object-cover"
                 referrerPolicy="no-referrer"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = '/images/logo.jpg';
+                }}
               />
             </div>
             <div className="absolute -bottom-1 -right-1 bg-gradient-to-r from-orange-500 to-amber-500 text-white p-2 rounded-2xl shadow-md border-2 border-white">
@@ -81,10 +88,10 @@ export const HomePage: React.FC<HomePageProps> = ({
           </div>
 
           {/* Main Call to Action */}
-          <div className="mt-7 flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+          <div className="mt-5 mb-3 relative z-20 flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
             <button
               onClick={() => onNavigateToMenu()}
-              className="w-full sm:w-auto px-8 py-4 rounded-2xl btn-liquid-orange font-black text-base shadow-[0_12px_28px_rgba(255,107,0,0.35)] flex items-center justify-center gap-2"
+              className="relative z-20 w-full sm:w-auto px-8 py-4 rounded-2xl btn-liquid-orange font-black text-base shadow-[0_12px_28px_rgba(255,107,0,0.35)] flex items-center justify-center gap-2 active:scale-[0.98] transition-transform"
             >
               <span>COMMANDER MAINTENANT</span>
               <ArrowRight className="w-5 h-5" />
@@ -108,6 +115,100 @@ export const HomePage: React.FC<HomePageProps> = ({
           </button>
         </div>
       </section>
+
+      {/* PWA INSTALL SYSTEM ON HOME PAGE */}
+      {!isInstalled && (
+        <section className="glass-panel-orange border border-orange-300/80 rounded-[32px] p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm animate-fadeIn">
+          <div className="flex items-center gap-3.5 text-left">
+            <div className="w-12 h-12 rounded-2xl btn-liquid-orange text-white flex items-center justify-center flex-shrink-0 shadow-md">
+              <Download className="w-6 h-6" />
+            </div>
+
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="font-black text-sm sm:text-base text-stone-900">
+                  Installer l’application Chez Bineta
+                </h3>
+                <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-orange-500 text-white shadow-2xs">
+                  Sans Play Store
+                </span>
+              </div>
+
+              <p className="text-xs text-stone-600 mt-0.5">
+                Ajoutez l’application sur votre téléphone pour commander plus vite et la retrouver dans vos applications.
+              </p>
+            </div>
+          </div>
+
+          <button
+            onClick={() => {
+              if (isInstallable) {
+                install();
+              } else {
+                setShowInstallGuideModal(true);
+              }
+            }}
+            className="w-full sm:w-auto px-6 py-3 rounded-2xl btn-liquid-orange font-black text-xs sm:text-sm shadow-md transition whitespace-nowrap active:scale-95 cursor-pointer flex items-center justify-center gap-2"
+          >
+            <Smartphone className="w-4 h-4" />
+            <span>Installer l’application</span>
+          </button>
+        </section>
+      )}
+
+      {showInstallGuideModal && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 animate-fadeIn">
+          <div
+            onClick={() => setShowInstallGuideModal(false)}
+            className="fixed inset-0 bg-stone-900/40 backdrop-blur-sm"
+          />
+
+          <div className="relative w-full max-w-sm glass-panel-elevated rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl border border-white z-10 space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Smartphone className="w-5 h-5 text-orange-600" />
+                <h3 className="font-black text-sm sm:text-base text-stone-900">
+                  {isIOS ? "Installer sur iPhone / iPad" : "Installer sur Android"}
+                </h3>
+              </div>
+
+              <button
+                onClick={() => setShowInstallGuideModal(false)}
+                className="w-8 h-8 rounded-full bg-stone-100 flex items-center justify-center text-stone-600 hover:bg-stone-200 cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {isIOS ? (
+              <div className="text-xs text-stone-600 space-y-2 leading-relaxed">
+                <p>Pour ajouter l’application sur votre iPhone sans passer par l’App Store :</p>
+                <ol className="list-decimal list-inside space-y-1.5 font-medium bg-white/70 p-3 rounded-2xl border border-stone-100">
+                  <li>Appuyez sur <strong>Partager</strong> dans Safari.</li>
+                  <li>Appuyez sur <strong>« Sur l'écran d'accueil »</strong>.</li>
+                  <li>Validez avec <strong>Ajouter</strong>.</li>
+                </ol>
+              </div>
+            ) : (
+              <div className="text-xs text-stone-600 space-y-2 leading-relaxed">
+                <p>Pour installer l’application sur Android :</p>
+                <ol className="list-decimal list-inside space-y-1.5 font-medium bg-white/70 p-3 rounded-2xl border border-stone-100">
+                  <li>Appuyez sur les <strong>3 petits points ⋮</strong> dans Chrome.</li>
+                  <li>Appuyez sur <strong>« Installer l'application »</strong> ou <strong>« Ajouter à l'écran d'accueil »</strong>.</li>
+                  <li>L'application apparaîtra dans vos applications.</li>
+                </ol>
+              </div>
+            )}
+
+            <button
+              onClick={() => setShowInstallGuideModal(false)}
+              className="w-full py-3 rounded-2xl btn-liquid-orange font-bold text-xs cursor-pointer"
+            >
+              J'ai compris
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Category Pills (iOS Glass Horizontal Grid) */}
       <section>

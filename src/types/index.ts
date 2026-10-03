@@ -67,6 +67,16 @@ export interface Order {
   notes?: string;
 }
 
+export interface RecentOrderRecord {
+  id: string;
+  orderNumber: string;
+  customerName: string;
+  total: number;
+  mode: 'pickup' | 'delivery';
+  createdAt: string;
+  status: OrderStatus;
+}
+
 export interface Reservation {
   id: string;
   customerName: string;
