@@ -197,14 +197,6 @@ async function pollOrders() {
 setInterval(pollOrders, 5000);
 pollOrders();
 
-const dist = new URL('../dist', import.meta.url).pathname;
-
-app.use(express.static(dist));
-
-app.get('*', (_req, res) => {
-  res.sendFile(`${dist}/index.html`);
-});
-
 const port = Number(process.env.PORT || 3000);
 
 app.listen(port, () => {
