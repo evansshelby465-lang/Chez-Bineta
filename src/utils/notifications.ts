@@ -91,18 +91,8 @@ export function triggerNewOrderNotification(orderNumber: string, customerName: s
     }
   }
 
-  // 3. Web Notification API if permitted
-  if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
-    try {
-      new Notification(`🔔 Nouvelle commande ${orderNumber} !`, {
-        body: `${customerName} a commandé pour ${total.toLocaleString('fr-FR')} FCFA`,
-        icon: '/file_00000000276c81f482bf0792c3794c7b.png',
-        tag: orderNumber,
-      });
-    } catch {
-      // Notification failed
-    }
-  }
+  // Les notifications système sont envoyées exclusivement par FCM.
+  // On ne crée pas de notification locale ici afin d'éviter les doublons.
 }
 
 export async function requestNotificationPermission(): Promise<boolean> {
