@@ -161,10 +161,27 @@ async function pollOrders() {
       .collection('pushTokens')
       .get();
 
+    // Un même téléphone peut avoir son token enregistré plusieurs fois.
+    // On déduplique les tokens avant l'envoi FCM.
+    const uniqueTokens = new Map();
+
+    for (const tokenDoc of tokensSnapshot.docs) {
+      const tokenData = tokenDoc.data();
+      const token = tokenData.token;
+
+      if (token && !uniqueTokens.has(token)) {
+        uniqueTokens.set(token, tokenDoc);
+      }
+    }
+
+    console.log(
+      `📱 Tokens push: ${tokensSnapshot.size} document(s), ${uniqueTokens.size} token(s) unique(s)`
+    );
+
     for (const orderDoc of newOrders) {
       const order = orderDoc.data();
 
-      for (const tokenDoc of tokensSnapshot.docs) {
+      for (const tokenDoc of uniqueTokens.values()) {
         const tokenData = tokenDoc.data();
         const token = tokenData.token;
 
